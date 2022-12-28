@@ -8,8 +8,6 @@ public class EnemyController : MonoBehaviour
 {
     public float speed = 2f;
     public float repulsion = 1f;
-    public int maxHealth = 100;
-    public Slider healthBar;
     private GameObject _player;
     private Rigidbody2D _rb;
     private Animator _anim;
@@ -17,10 +15,9 @@ public class EnemyController : MonoBehaviour
     private int lastHorizontal, lastVertical;
     private bool canMove = true;
     private float timeToMove = 0f;
-    private int currentHealth;
+    
     private void Awake()
     {
-        currentHealth = maxHealth;
         _anim = GetComponent<Animator>();
         _rb = GetComponent<Rigidbody2D>();
         _player = GameObject.Find("Player");
@@ -30,10 +27,7 @@ public class EnemyController : MonoBehaviour
     {
         // Timer
         timeToMove += Time.deltaTime;
-     
-        // Actualizar barra de vida
-        healthBar.value = currentHealth;
-        
+
         if (timeToMove >= 1f)
         {
             canMove = true;
@@ -88,7 +82,6 @@ public class EnemyController : MonoBehaviour
             Vector2 direction = transform.position - col.transform.position;
             direction.Normalize();
             _rb.AddForce(direction * repulsion, ForceMode2D.Impulse);
-            currentHealth -= 10;
         }
     }
 }
