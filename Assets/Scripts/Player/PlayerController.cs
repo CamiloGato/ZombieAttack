@@ -7,11 +7,14 @@ public class PlayerController : MonoBehaviour
 {
     public float speed = 5f;
     public GameObject attackArea;
+    public SpawnManager spawnManager; 
+    
     private Rigidbody2D _rb;
     private Animator _anim;
     
     private int lastHorizontal, lastVertical;
-    private float timer;
+    private float timerAttack;
+    private bool isWalking;
     
     private void Awake()
     {
@@ -19,24 +22,44 @@ public class PlayerController : MonoBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _anim = GetComponent<Animator>();
     }
-
+    
     private void Update()
     {
-        timer += Time.deltaTime;
+        timerAttack += Time.deltaTime;
         
-        // Recibimos el input del usuario
+        // Input Jugador
         int horizontal = (int) Input.GetAxisRaw("Horizontal");
         int vertical = (int) Input.GetAxisRaw("Vertical");
         
-        Vector2 direction = new Vector2(horizontal, vertical);
+        UpdateMovement(horizontal, vertical);
+        UpdateAttackArea(horizontal, vertical);
+        CheckAttack();
+        UpdateAnimator();
+        CheckGameOver();
+
+    }
+
+    private void CheckGameOver()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            spawnManager.gameOver = true;
+        }
+    }
+    
+    /// <summary>
+    /// Actualiza la posición del jugador
+    /// </summary>
+    /// <param name="horizontal"> Dirección eje X </param>
+    /// <param name="vertical"> Direccion eje Y</param>
+    private void UpdateMovement(int horizontal, int vertical)
+    {
         
+        // Mover al jugador
+        Vector2 direction = new Vector2(horizontal, vertical);
         _rb.velocity = direction * speed;
         
-        // Creamos variable para verificar si el jugador se esta moviendo
-        bool isWalking;
-
-        // Verificamos si la velocidad es mayor a 0
-        // Entonces el jugador se esta moviendo
+        // Verificamos si el jugador se esta moviendo
         if (_rb.velocity.magnitude > 0)
         {
             isWalking = true;
@@ -48,30 +71,54 @@ public class PlayerController : MonoBehaviour
             isWalking = false;
         }
         
-        // Asignamos las variables al animator
-        _anim.SetBool("Walk", isWalking);
-        _anim.SetFloat("X", lastHorizontal);
-        _anim.SetFloat("Y", lastVertical);
+    }
 
-        // Verificaremos cuando se presione el botón Fire1 para atacar
-        bool isAttacking = Input.GetButtonDown("Fire1");
-        if (isAttacking && timer > 0.5f)
+    /// <summary>
+    /// Chequea si el jugador presiono el boton de ataque para activar el area de ataque
+    /// </summary>
+    private void CheckAttack()
+    {
+        // Verificamos si ataca y el timer de ataque es mayor a 0.5f 
+        if (Input.GetButtonDown("Fire1") && timerAttack > 0.5f)
         {
             attackArea.SetActive(true);
             _anim.SetTrigger("Attack");
-            timer = 0f;
+            timerAttack = 0f;
         }
+        
         // Cuando pase 0.1s desactivaremos el ataque
-        if (timer > 0.1f)
+        if (timerAttack > 0.1f)
         {
             attackArea.SetActive(false);
         }
-
-        // Actualizar posicion de nuestro Attack Area
+    }
+    
+    
+    /// <summary>
+    /// Se encarga de actualizar el animator del jugador
+    /// </summary>
+    private void UpdateAnimator()
+    {
+        _anim.SetBool("Walk", isWalking);
+        _anim.SetFloat("X", lastHorizontal);
+        _anim.SetFloat("Y", lastVertical);
+    }
+    
+    /// <summary>
+    /// Actualiza la posicion del area de ataque
+    /// </summary>
+    /// <param name="horizontal">Dirección eje X</param>
+    /// <param name="vertical">Dirección eje Y</param>
+    private void UpdateAttackArea(int horizontal, int vertical)
+    {
+        
+        Vector2 direction = new Vector2(horizontal, vertical);
+        
         if (horizontal != 0 || vertical != 0)
         {
             attackArea.transform.position = 0.5f * direction + (Vector2) transform.position;
         }
         
     }
+    
 }
