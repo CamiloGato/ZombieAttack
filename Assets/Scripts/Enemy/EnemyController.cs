@@ -8,16 +8,22 @@ public class EnemyController : MonoBehaviour
 {
     public float speed = 2f;
     public float repulsion = 1f;
+    public int maxHealth = 100;
+    
     private GameObject _player;
     private Rigidbody2D _rb;
     private Animator _anim;
 
     private int lastHorizontal, lastVertical;
     private bool canMove = true;
-    private float timeToMove = 0f;
+    private float timeToMove;
+    private float timeToDmg;
+    
+    private int currentHealth;
     
     private void Awake()
     {
+        currentHealth = maxHealth;
         _anim = GetComponent<Animator>();
         _rb = GetComponent<Rigidbody2D>();
         _player = GameObject.Find("Player");
@@ -27,6 +33,7 @@ public class EnemyController : MonoBehaviour
     {
         // Timer
         timeToMove += Time.deltaTime;
+        timeToDmg += Time.deltaTime;
 
         if (timeToMove >= 1f)
         {
@@ -70,18 +77,28 @@ public class EnemyController : MonoBehaviour
         _anim.SetBool("Walk", isWalking);
         _anim.SetFloat("X", lastHorizontal);
         _anim.SetFloat("Y", lastVertical);
+        
+        // Si la vida es menor o igual a 0 entonces destruir el objeto
+        if (currentHealth <= 0)
+        {
+            Destroy(gameObject);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D col)
     {
-        if (col.CompareTag("AttackArea"))
+        if (col.CompareTag("AttackArea") && timeToDmg >= 1f)
         {
-            _anim.SetTrigger("Dmg");
-            canMove = false;
+            // Timers
+            timeToDmg = 0f;
             timeToMove = 0f;
+            
+            canMove = false;
             Vector2 direction = transform.position - col.transform.position;
             direction.Normalize();
             _rb.AddForce(direction * repulsion, ForceMode2D.Impulse);
+            currentHealth -= 10;
+            _anim.SetTrigger("Dmg");
         }
     }
 }

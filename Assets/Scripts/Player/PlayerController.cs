@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
     
     private int lastHorizontal, lastVertical;
     private float timer;
+    private bool isWalking;
     
     private void Awake()
     {
@@ -28,13 +29,10 @@ public class PlayerController : MonoBehaviour
         int horizontal = (int) Input.GetAxisRaw("Horizontal");
         int vertical = (int) Input.GetAxisRaw("Vertical");
         
+        // Movimiento del jugador usando el rigidbody
         Vector2 direction = new Vector2(horizontal, vertical);
-        
         _rb.velocity = direction * speed;
         
-        // Creamos variable para verificar si el jugador se esta moviendo
-        bool isWalking;
-
         // Verificamos si la velocidad es mayor a 0
         // Entonces el jugador se esta moviendo
         if (_rb.velocity.magnitude > 0)
@@ -48,7 +46,7 @@ public class PlayerController : MonoBehaviour
             isWalking = false;
         }
         
-        // Asignamos las variables al animator
+        // Asignamos las variables al animator (Actualizamos el animator)
         _anim.SetBool("Walk", isWalking);
         _anim.SetFloat("X", lastHorizontal);
         _anim.SetFloat("Y", lastVertical);

@@ -171,7 +171,6 @@ MonoBehaviour:
   speed: 2
   repulsion: 1
   maxHealth: 100
-  healthBar: {fileID: 0}
 --- !u!114 &6442782178131471952
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -198,4 +197,4 @@ MonoBehaviour:
   - {x: 0.27346212, y: -0.4169953, z: 0}
   m_ShapePathHash: 997578765
   m_Mesh: {fileID: 0}
-  m_InstanceId: -1258
+  m_InstanceId: -1286
